@@ -5,12 +5,21 @@
 #include "matrixOPs.h"
 #include <string.h>
 #include <stdbool.h>
-#include <openssl/sha.h>
+//#include <openssl/sha.h>
 
 #define N 32 // n in the paper
 #define M 19 // t in the paper
 #define W 2  // w in the paper
 #define MAX_SIZE 4
+
+unsigned int APHash(const int input){
+    
+   unsigned int hash = 3777171;
+   unsigned int i = 7;
+   hash ^= ((i & 1) == 0) ? (  (hash <<  7) ^ (input) * (hash >> 3)) :
+                               (~((hash << 11) + ((input) ^ (hash >> 5))));
+   return hash % 1048576;
+}
 
 // output two vectors  
 struct vectorPair {
@@ -35,16 +44,10 @@ int* modVectorInKeyGen(int *vector,int length) {
     int limit = pow(2, N);
     int* output = malloc(length * sizeof(int));
     for (int i = 0; i < length; i++) {
-        unsigned char data[SHA256_DIGEST_LENGTH];
-        memset(data, 0, sizeof(data));
-        data[i] = vector[i];
+        output[i] = vector[i];
         for (int j = 0; j < times; j++) {
-            unsigned char hash[SHA_DIGEST_LENGTH];
-            SHA256(data, SHA256_DIGEST_LENGTH , hash);
-            data[i] = hash[i];
+            output[i] = APHash(output[i]);
         }
-        output[i] = data[i];
-        memset(data, 0, sizeof(data));
     }
     return output;
 }
@@ -110,17 +113,11 @@ int* modVectorInSig(int vector[M],int b[M]) {
     int* result = malloc(M * sizeof(int));
     int limit = pow(2, N);
     for (int i = 0; i < M; i++) {
-        unsigned char data[SHA256_DIGEST_LENGTH];
-        memset(data, 0, sizeof(data));
-        data[i] = vector[i];
+        result[i] = vector[i];
         int times = b[i];
         for (int j = 0; j < times; j++) {
-            unsigned char hash[SHA_DIGEST_LENGTH];
-            SHA256(data, SHA256_DIGEST_LENGTH, hash);
-            data[i] = hash[i];
+            result[i] = APHash(result[i]);
         }
-        result[i] = data[i];
-        memset(data, 0, sizeof(data));
     }
     return result;
 }
@@ -133,18 +130,12 @@ int *modVectorInVer(int vector[M],int b[M]) {
 
     for (int i = 0; i < M; i++) {
 
-        unsigned char data[SHA256_DIGEST_LENGTH];
-        memset(data, 0, sizeof(data));
-        data[i] = vector[i];
+        result[i] = vector[i];
 
         for (int j = 0; j < times - b[i]; j++) {
 
-            unsigned char hash[SHA_DIGEST_LENGTH];
-            SHA256(data, SHA256_DIGEST_LENGTH, hash);
-            data[i] = hash[i];
-        }
-        result[i] = data[i];
-        memset(data, 0, sizeof(data)); 
+            result[i] = APHash(result[i]);
+        } 
     }
     return result;
 }
