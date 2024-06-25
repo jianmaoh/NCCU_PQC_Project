@@ -39,7 +39,7 @@ int* generateRandomVector(int n) {
 }
 
 //the one way f function in wots key generation
-int* modVectorInKeyGen(int *vector,int length) { 
+int* OWFInKeyGen(int *vector,int length) { 
     int times = pow(2, W) - 1;
     int limit = pow(2, N);
     int* output = malloc(length * sizeof(int));
@@ -60,7 +60,7 @@ struct vectorPair keyGen() {
     memcpy(pair.X, tempX, M * sizeof(int));
     free(tempX);
 
-    int* tempY = modVectorInKeyGen(pair.X, M);
+    int* tempY = OWFInKeyGen(pair.X, M);
     memcpy(pair.Y, tempY, M * sizeof(int));
     free(tempY);
 
@@ -109,7 +109,7 @@ int *split_and_convert(int *arr, int length, int w) {
 }
 
 // the one way f function in wots signature
-int* modVectorInSig(int vector[M],int b[M]) { 
+int* OWFInSig(int vector[M],int b[M]) { 
     int* result = malloc(M * sizeof(int));
     int limit = pow(2, N);
     for (int i = 0; i < M; i++) {
@@ -123,7 +123,7 @@ int* modVectorInSig(int vector[M],int b[M]) {
 }
 
 // the one way f function in wots verification
-int *modVectorInVer(int vector[M],int b[M]) { 
+int *OWFInVer(int vector[M],int b[M]) { 
     int times = pow(2, W) - 1;
     int* result = malloc(M * sizeof(int));
     int limit = pow(2, N);
@@ -207,7 +207,7 @@ int *sigOpArr(int *digest){ //
 // sig(SK, d)  VK: verification key, SK: signature key, d: message摘要
 int *sig(int X[M],int *digest){
     int *timeOfOWF = sigOpArr(digest);
-    int *sig = modVectorInSig(X,timeOfOWF);
+    int *sig = OWFInSig(X,timeOfOWF);
     return sig;
 }
 
@@ -217,7 +217,7 @@ int *sig(int X[M],int *digest){
 // 把SK和digest丟進去，再把結果和VK比對
 bool ver(int *sign,int Y[M],int *digest){
     int *timeOfOWF = sigOpArr(digest);
-    int *ver = modVectorInVer(sign,timeOfOWF);
+    int *ver = OWFInVer(sign,timeOfOWF);
     printf("ver is ");
     for (int i = 0; i < M; i++){
         printf("%d ", ver[i]);
