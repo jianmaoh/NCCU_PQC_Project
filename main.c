@@ -7,16 +7,16 @@
 // wots裡的摘要長度  sig(SK,d)  VK: verification key, SK: signature key, d: message摘要
 // 論文裡有多丟一個VK但應該不需要 ver時再丟進去就好
 //t1 = ceil(n/w) n=32 w=2 t1=16
-//t2 = floor(log2(t1(2^w-1))/w))+1 t1=16 w=2 t2=
-#define N 32
+//t2 = floor(log2(t1(2^w-1))/w))+1 t1=16 w=2 t2= 
+#define N 64
 // 論文裡的n
-#define M 19
+#define M 36
 
 int main() {
     int matrix[N][M] = {0};
     int matrix2[N][M] = {0};
-    int message[N]={1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,1,0,1,1};
-    int length = sizeof(message) / sizeof(message[0]);
+    int message[N] = {1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0};
+    int length = 0;
     printf("Length of the array is %d\n", length);
 
    

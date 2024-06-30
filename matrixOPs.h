@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define N 32
-#define M 19
+#define N 64
+#define M 36
 #define W 2
 
 

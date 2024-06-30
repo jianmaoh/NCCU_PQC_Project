@@ -7,8 +7,8 @@
 #include <stdbool.h>
 //#include <openssl/sha.h>
 
-#define N 32 // n in the paper
-#define M 19 // t in the paper
+#define N 64 // n in the paper
+#define M 36 // t in the paper
 #define W 2  // w in the paper
 #define MAX_SIZE 4
 
@@ -59,23 +59,18 @@ struct vectorPair keyGen() {
     int* tempX = generateRandomVector(N);
     memcpy(pair.X, tempX, M * sizeof(int));
     free(tempX);
-
     int* tempY = OWFInKeyGen(pair.X, M);
     memcpy(pair.Y, tempY, M * sizeof(int));
     free(tempY);
-
     return pair;
 }
 
 
 // mix two arrays (frontArr and backArr) into one array
 int *mixArray(int *frontArr, int *backArr, int lenghOfArr1, int lengthOfArr2) {
-
     int *result = (int *)malloc((lenghOfArr1 + lengthOfArr2) * sizeof(int));
-   
     memcpy(result, frontArr, lenghOfArr1 * sizeof(int));
-    memcpy(result + lenghOfArr1, backArr, lengthOfArr2 * sizeof(int));
-   
+    memcpy(result + lenghOfArr1, backArr, lengthOfArr2 * sizeof(int)); 
     return result;  
 }
 
@@ -83,12 +78,10 @@ int *mixArray(int *frontArr, int *backArr, int lenghOfArr1, int lengthOfArr2) {
 int *decimal_to_binary(int decimal, int *length) {
     *length = floor(log2(decimal)) + 1;
     int *binary = (int *)malloc(*length * sizeof(int));
-
     for (int i = *length - 1; i >= 0; i--) {
         binary[i] = decimal % 2;
         decimal /= 2;
     }
-
     return binary;
 }
 
@@ -96,7 +89,6 @@ int *decimal_to_binary(int decimal, int *length) {
 int *split_and_convert(int *arr, int length, int w) {
     int num_blocks = length / w;
     int *result = (int *)malloc(num_blocks * sizeof(int));
-
     for (int i = 0; i < num_blocks; i++) {
         int block_value = 0;
         for (int j = 0; j < w; j++) {
@@ -104,7 +96,6 @@ int *split_and_convert(int *arr, int length, int w) {
         }
         result[i] = block_value;
     }
-
     return result;
 }
 
@@ -127,11 +118,8 @@ int *OWFInVer(int vector[M],int b[M]) {
     int times = pow(2, W) - 1;
     int* result = malloc(M * sizeof(int));
     int limit = pow(2, N);
-
     for (int i = 0; i < M; i++) {
-
         result[i] = vector[i];
-
         for (int j = 0; j < times - b[i]; j++) {
 
             result[i] = APHash(result[i]);
@@ -153,26 +141,20 @@ int *sigOpArr(int *digest){ //
     }else {
         padding = W - (N % W); 
     }
-
     int *fillArr = (int *)malloc(padding * sizeof(int));
     memset(fillArr, 0, padding * sizeof(int)); // fillArr = [0]
     int *filledDigest = (int *)malloc((N + padding) * sizeof(int));
-    filledDigest = mixArray(fillArr, digest, padding ,N ); // filledDigest = [0101]
- 
+    filledDigest = mixArray(fillArr, digest, padding ,N ); // filledDigest = [0101] 
     // then we start to compute checksum
-
     int *convertedDigest = split_and_convert(filledDigest, (N + padding), W);
     int powerOfTwo = pow(2, W);
     int checksum = 0;
     for (int i = 0; i < (N + padding)/ W; i++) {
         checksum += powerOfTwo  - convertedDigest[i];
     }
-
     int checksum_length;
     int *checksumArr = decimal_to_binary(checksum, &checksum_length);
-
     //then start to fill the checksum array with 0 to make it can be divided by W
-
     int padding2;
     if (checksum_length % W == 0) {
         padding2 = 0;
@@ -180,17 +162,12 @@ int *sigOpArr(int *digest){ //
         padding2 = W - (checksum_length % W); // padding = 1
     }
     int *fillArr2 = (int *)malloc(padding2 * sizeof(int));
-    memset(fillArr2, 0, padding2 * sizeof(int)); // fillArr = [0]
-   
+    memset(fillArr2, 0, padding2 * sizeof(int)); // fillArr = [0]   
     int *filledChecksum = (int *)malloc((checksum_length + padding2) * sizeof(int));
     filledChecksum = mixArray(fillArr2, checksumArr, padding2 ,checksum_length ); // filledDigest = [0110]
-
     // then divide it by w 
-
     int *convertedChecksum = split_and_convert(filledChecksum, (checksum_length + padding2), W);
-
     //then start to merge the convertedDigest and convertedChecksum
-
     int *result = mixArray(convertedDigest, convertedChecksum, (N + padding)/W, (checksum_length + padding2)/W);
     free(fillArr);
     free(filledDigest);
@@ -199,7 +176,6 @@ int *sigOpArr(int *digest){ //
     free(fillArr2);
     free(filledChecksum);
     free(convertedChecksum);
-
     return result; 
 }
 
